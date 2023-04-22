@@ -1,1 +1,1 @@
-# Windows-CSC13001_20KTPM-MyPaint
+# Windows-CSC13001_20KTPM-Paint
