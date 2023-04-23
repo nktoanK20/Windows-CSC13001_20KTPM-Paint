@@ -9,6 +9,11 @@ namespace EllipseAbility
 {
     public class EllipseAbility : IShape
     {
+        public const int QUARTER_TOP_RIGHT = 0;
+        public const int QUARTER_BOTTOM_RIGHT = 1;
+        public const int QUARTER_BOTTOM_LEFT = 2;
+        public const int QUARTER_TOP_LEFT = 3;
+
         public Point Start { get; set; }
         public Point End { get; set; }
 
@@ -25,9 +30,29 @@ namespace EllipseAbility
 
         public UIElement Draw(Color color, int thickness)
         {
-            double width = Math.Abs(End.X - Start.X);
-            double height = Math.Abs(End.Y - Start.Y);
+            double width = End.X - Start.X;
+            double height = End.Y - Start.Y;
+            int quarter = -1;
 
+            if (width >= 0 && height >= 0)
+            {
+                quarter = QUARTER_BOTTOM_RIGHT;
+            }
+            else if (width >= 0 && height <= 0)
+            {
+                quarter = QUARTER_TOP_RIGHT;
+            }
+            else if (width <= 0 && height <= 0)
+            {
+                quarter = QUARTER_TOP_LEFT;
+            }
+            else if (width <= 0 && height >= 0)
+            {
+                quarter = QUARTER_BOTTOM_LEFT;
+            }
+
+            width = Math.Abs(width);
+            height = Math.Abs(height);
             var shape = new Ellipse()
             {
                 Width = width,
@@ -36,8 +61,26 @@ namespace EllipseAbility
                 StrokeThickness = thickness
             };
 
-            Canvas.SetLeft(shape, Start.X);
-            Canvas.SetTop(shape, Start.Y);
+            switch (quarter)
+            {
+                case QUARTER_TOP_RIGHT:
+                    Canvas.SetLeft(shape, Start.X);
+                    Canvas.SetTop(shape, Start.Y - height);
+                    break;
+                case QUARTER_BOTTOM_RIGHT:
+                    Canvas.SetLeft(shape, Start.X);
+                    Canvas.SetTop(shape, Start.Y);
+                    break;
+                case QUARTER_BOTTOM_LEFT:
+                    Canvas.SetLeft(shape, Start.X - width);
+                    Canvas.SetTop(shape, Start.Y);
+                    break;
+                case QUARTER_TOP_LEFT:
+                    Canvas.SetLeft(shape, Start.X - width);
+                    Canvas.SetTop(shape, Start.Y - height);
+                    break;
+            }
+
             return shape;
         }
 
