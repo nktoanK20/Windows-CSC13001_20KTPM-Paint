@@ -88,5 +88,15 @@ namespace EllipseAbility
         {
             return MemberwiseClone();
         }
+
+        public Point GetStart()
+        {
+            return Start;
+        }
+
+        public Point GetEnd()
+        {
+            return End;
+        }
     }
 }
