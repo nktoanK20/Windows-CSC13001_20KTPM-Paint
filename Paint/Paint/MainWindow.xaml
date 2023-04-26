@@ -7,12 +7,15 @@
     xmlns:local="clr-namespace:Paint"
     mc:Ignorable="d"
     Title="Paint"
-    Height="450"
-    Width="800"
-    Loaded="Window_Loaded">
+    Height="800"
+    Width="1300"
+    Loaded="Window_Loaded"
+    Closing="Window_Closing">
     <Grid
         Background="Transparent">
         <Grid.RowDefinitions>
+            <RowDefinition
+                Height="40"></RowDefinition>
             <RowDefinition
                 Height="40"></RowDefinition>
             <RowDefinition
@@ -20,20 +23,51 @@
         </Grid.RowDefinitions>
         <StackPanel
             Orientation="Horizontal"
+            Name="menuBarStackPanel"
+            Grid.Row="0">
+            <StackPanel.Resources>
+                <Style
+                    TargetType="{x:Type Button}">
+                    <Setter
+                        Property="Margin"
+                        Value="0,0,10,0" />
+                </Style>
+            </StackPanel.Resources>
+            <Button
+                x:Name="btnOpen"
+                Content="Open"
+                Width="50"
+                Click="btnOpen_Click" />
+            <Button
+                x:Name="btnSave"
+                Content="Save"
+                Width="50"
+                Click="btnSave_Click" />
+            <Button
+                x:Name="btnClear"
+                Content="Clear"
+                Width="50"
+                Click="btnClear_Click" />
+        </StackPanel>
+        <StackPanel
+            Grid.Row="1"
+            Orientation="Horizontal"
             Name="abilitiesStackPanel">
         </StackPanel>
         <Canvas
-            Grid.Row="1"
-            Background="Transparent"
+            Grid.Row="2"
+            Background="White"
             Name="actualCanvas">
         </Canvas>
+
         <Canvas
-            Grid.Row="1"
+            Grid.Row="2"
             Background="Transparent"
             Name="aboveCanvas"
             MouseDown="canvas_MouseDown"
             MouseMove="canvas_MouseMove"
             MouseUp="canvas_MouseUp">
         </Canvas>
+
     </Grid>
 </Window>
