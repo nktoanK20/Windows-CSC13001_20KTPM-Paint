@@ -214,5 +214,15 @@ namespace EllipseAbility
         {
             return this.End;
         }
+
+        public Point GetStart()
+        {
+            return this.Start;
+        }
+
+        public Point GetEnd()
+        {
+            return this.Start;
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace Paint
         Point _start;
         Point _end;
 
-
+        private List<IShape> _shapes = new List<IShape>();
         private List<IShape> _chosedShapes = new List<IShape>();
         private List<controlPoint> _controlPoints = new List<controlPoint>();
         private double editPreviousX = -1;
@@ -118,7 +118,18 @@ namespace Paint
 
         private void AutoSave()
         {
-            FileStream fileStream = new FileStream(_autoSavePath, FileMode.Truncate, FileAccess.Write);
+            FileStream fileStream = null;
+            try
+            {
+                fileStream = new FileStream(_autoSavePath, FileMode.Truncate, FileAccess.Write);
+            }
+            catch(Exception ex)
+            {
+                fileStream = new FileStream(_autoSavePath, FileMode.Create, FileAccess.Write);
+            }
+
+            
+            
             BinaryWriter writer = new BinaryWriter(fileStream);
             foreach (var shape in _shapes)
             {
@@ -178,6 +189,10 @@ namespace Paint
         private void RedrawCanvas()
         {
             actualCanvas.Children.Clear();
+            if (btnOpenFlag == true)
+            {
+                actualCanvas.Children.Add(imageOpenedFromFile);
+            }
             foreach (var shape in _shapes)
             {
                 var element = shape.Draw(_selectedColor, _selectedThickness);
@@ -237,6 +252,8 @@ namespace Paint
             {
                 return;
             }*/
+            //
+            
             bool isChange = false;
             if (_chosedShapes.Count == 1)
             {
@@ -558,15 +575,11 @@ namespace Paint
             {
                 actualCanvas.Children.Clear();
 
-            if (btnOpenFlag == true)
-            {
-                actualCanvas.Children.Add(imageOpenedFromFile);
-            }
+                if (btnOpenFlag == true)
+                {
+                    actualCanvas.Children.Add(imageOpenedFromFile);
+                }
 
-            if (btnOpenFlag == true)
-            {
-                actualCanvas.Children.Add(imageOpenedFromFile);
-            }
 
                 foreach (var shape in _shapes)
                 {
@@ -581,6 +594,7 @@ namespace Paint
                 UIElement newShape = _prototype.Draw(_selectedColor, _selectedThickness);
                 actualCanvas.Children.Add(newShape);
             }
+            
 
 
         }
@@ -659,111 +673,6 @@ namespace Paint
             _isEditMode = false;
         }
 
-        private void btnClear_Click(object sender, RoutedEventArgs e)
-        {
-            _shapes.Clear();
-            actualCanvas.Children.Clear();
-            btnOpenFlag = false;
-        }
-
-        private void btnOpen_Click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.DefaultExt = ".png";
-            dlg.Filter = "PNG Files (*.png)|*.png";
-            Nullable<bool> result = dlg.ShowDialog();
-            string filename;
-            if (result == true)
-            {
-                filename = dlg.FileName;
-            }
-            else
-            {
-                return;
-            }
-            btnOpenFlag = true;
-            _shapes.Clear();
-            actualCanvas.Children.Clear();
-
-            imageOpenedFromFile = new Image();
-            imageOpenedFromFile.Source = new BitmapImage(new Uri(filename, UriKind.Absolute));
-            Canvas.SetLeft(imageOpenedFromFile, 0);
-            Canvas.SetTop(imageOpenedFromFile, 0);
-            actualCanvas.Children.Add(imageOpenedFromFile);
-        }
-
-        private void btnSave_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "PNG Files (*.png)|*.png";
-            if (saveFileDialog.ShowDialog() == false)
-            {
-                if (e.ChangedButton != MouseButton.Left)
-                    return;
-                Point currentPos = e.GetPosition(actualCanvas);
-                for (int i = this._shapes.Count - 1; i >= 0; i--)
-                {
-    ;
-                    IShape temp = _shapes[i];
-
-
-
-                    if (temp.IsHovering(Math.Abs(currentPos.X),Math.Abs(currentPos.Y)))
-                    {
-
-                        if (Keyboard.IsKeyDown(Key.LeftCtrl))
-                        {
-                            if (!_chosedShapes.Contains(_shapes[i]))
-                            {
-                                this._chosedShapes.Add(_shapes[i]);
-                            }
-                            else
-                                this._chosedShapes.Remove(_shapes[i]);
-                        }
-                        else
-                        {
-                            _chosedShapes.Clear();
-                            this._chosedShapes.Add(_shapes[i]);
-                        }
-
-                        RedrawCanvas();
-                        break;
-                    }
-                }
-
-                this.editPreviousX = -1;
-                this.editPreviousY = -1;
-
-                return;
-            }
-
-
-            Rect bounds = VisualTreeHelper.GetDescendantBounds(actualCanvas);
-            double dpi = 96d;
-            RenderTargetBitmap rtb = new RenderTargetBitmap((Int32)bounds.Width, (Int32)bounds.Height, dpi, dpi, System.Windows.Media.PixelFormats.Default);
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
-            {
-                VisualBrush vb = new VisualBrush(actualCanvas);
-                dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
-            }
-            rtb.Render(dv);
-
-
-            BitmapEncoder pngEncoder = new PngBitmapEncoder();
-            pngEncoder.Frames.Add(BitmapFrame.Create(rtb));
-            try
-            {
-                System.IO.MemoryStream ms = new System.IO.MemoryStream();
-                pngEncoder.Save(ms);
-                ms.Close();
-                System.IO.File.WriteAllBytes(saveFileDialog.FileName, ms.ToArray());
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {

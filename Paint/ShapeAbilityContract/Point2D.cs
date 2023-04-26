@@ -135,6 +135,16 @@ namespace Contract
             throw new NotImplementedException();
         }
 
+        public Point GetStart()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Point GetEnd()
+        {
+            throw new NotImplementedException();
+        }
+
         public static implicit operator Point2D(Point v)
         {
             throw new NotImplementedException();

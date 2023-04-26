@@ -166,5 +166,15 @@ namespace LineAbility
         {
             return this.End;
         }
+
+        public Point GetStart()
+        {
+            return this.Start;
+        }
+
+        public Point GetEnd()
+        {
+            return this.End;
+        }
     }
 }
