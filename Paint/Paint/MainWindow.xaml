@@ -53,6 +53,18 @@
             Grid.Row="1"
             Orientation="Horizontal"
             Name="abilitiesStackPanel">
+
+            <Button>
+                <Image Source="/Images/copy.png"/>
+            </Button>
+            <Button>
+                <Image Source="/Images/paste.png"/>
+            </Button>
+            <Button>
+                <Image Source="/Images/delete.png"/>
+            </Button>
+            <RadioButton Content="Edit" Checked="handleCheckedEdit"></RadioButton>
+            <RadioButton Content="Draw" Checked="handleCheckedDraw"></RadioButton>
         </StackPanel>
         <Canvas
             Grid.Row="2"
