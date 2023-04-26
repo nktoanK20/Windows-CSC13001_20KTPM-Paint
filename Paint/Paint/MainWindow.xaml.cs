@@ -678,6 +678,7 @@ namespace Paint
         {
             _shapes.Clear();
             actualCanvas.Children.Clear();
+            _chosedShapes.Clear();
             btnOpenFlag = false;
         }
 
