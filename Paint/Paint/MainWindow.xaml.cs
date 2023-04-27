@@ -424,7 +424,16 @@ namespace Paint
                                     {
                                         const double RotateFactor = 180.0 / 270;
                                         double alpha = Math.Abs(dx + dy);
-
+                                        Point Start = shape.getStart();
+                                        Point End = shape.getEnd();
+                                        int indexShapeMove = -1;
+                                        for (int i = 0; i < _shapes.Count; i++)
+                                        {
+                                            if (_shapes[i].getStart().X == Start.X)
+                                            {
+                                                indexShapeMove = i; break;
+                                            }
+                                        }
                                         Point2D v = shape.getCenterPoint();
 
                                         double xv = editPreviousX - v.X;
@@ -435,11 +444,12 @@ namespace Paint
                                         if (angle > 0)
                                         {
                                             shape.setRotateAngle(shape.getRotateAngle() - alpha * RotateFactor);
-
+                                        
                                         }
                                         else
                                         {
                                             shape.setRotateAngle(shape.getRotateAngle() + alpha * RotateFactor);
+                                            
                                         }
                                         break;
                                     }

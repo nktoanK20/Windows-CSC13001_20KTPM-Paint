@@ -84,6 +84,12 @@ namespace EllipseAbility
                     break;
             }
 
+            RotateTransform transform = new RotateTransform(this._rotateAngle);
+            transform.CenterX = width * 1.0 / 2;
+            transform.CenterY = height * 1.0 / 2;
+
+            shape.RenderTransform = transform;
+
             return shape;
         }
 

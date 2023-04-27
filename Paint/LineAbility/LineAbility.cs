@@ -28,7 +28,7 @@ namespace LineAbility
 
         public UIElement Draw(Color color, int thickness)
         {
-            return new Line()
+            var shape =  new Line()
             {
                 X1 = Start.X,
                 Y1 = Start.Y,
@@ -37,6 +37,18 @@ namespace LineAbility
                 Stroke = new SolidColorBrush(color),
                 StrokeThickness = thickness
             };
+
+            Point center = new Point((shape.X1 + shape.X2) / 2.0, (shape.Y1 + shape.Y2) / 2.0);
+
+            // Create a RotateTransform object and set its properties
+            RotateTransform rotateTransform = new RotateTransform();
+            rotateTransform.Angle = this.getRotateAngle();
+            rotateTransform.CenterX = center.X;
+            rotateTransform.CenterY = center.Y;
+
+            // Apply the RotateTransform to the Line's Transform property
+            shape.RenderTransform = rotateTransform;
+            return shape;
         }
 
         public object Clone()
