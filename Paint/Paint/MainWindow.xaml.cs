@@ -509,59 +509,51 @@ namespace Paint
                                         switch (ctrlPoint.getEdge(shape.getRotateAngle()))
                                         {
                                             case "topleft":
-                                                {
-                                                    edges[rotateList[index][0]].setCord(handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][2]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "topright":
-                                                {
-                                                    edges[rotateList[index][2]].setCord(handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][0]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "bottomright":
-                                                {
-                                                    edges[rotateList[index][2]].setCord(handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][0]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "bottomleft":
-                                                {
-                                                    edges[rotateList[index][0]].setCord(handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][2]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "right":
-                                                {
-                                                    edges[rotateList[index][2]].setCord(handledXY.X);
-                                                    edges[rotateList[index][0]].setCord(-handledXY.X);
-                                                    break;
-                                                }
                                             case "left":
-                                                {
-                                                    edges[rotateList[index][0]].setCord(handledXY.X);
-                                                    edges[rotateList[index][2]].setCord(-handledXY.X);
-                                                    break;
-                                                }
+                                            //case "bottomleft":
                                             case "top":
+                                            
                                                 {
-                                                    edges[rotateList[index][1]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][3]].setCord(-handledXY.Y);
+                                                    Point Start = shape.getStart();
+                                                    Point End = shape.getEnd();
+                                                    int indexShapeMove = -1;
+                                                    for (int i = 0; i < _shapes.Count; i++)
+                                                    {
+                                                        if (_shapes[i].getStart().X == Start.X)
+                                                        {
+                                                            indexShapeMove = i; break;
+                                                        }
+                                                    }
+                                                    Start.X += dx;
+                                                    Start.Y += dy;
+                                                    End.X += dx;
+                                                    End.Y += dy;
+                                                    _shapes[indexShapeMove].UpdateStart(Start);
+                                                    
                                                     break;
+
                                                 }
+                                            //case "topright":
+                                            case "right":
+                                            case "bottomright":
                                             case "bottom":
                                                 {
-                                                    edges[rotateList[index][3]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][1]].setCord(-handledXY.Y);
+                                                    Point Start = shape.getStart();
+                                                    Point End = shape.getEnd();
+                                                    int indexShapeMove = -1;
+                                                    for (int i = 0; i < _shapes.Count; i++)
+                                                    {
+                                                        if (_shapes[i].getStart().X == Start.X)
+                                                        {
+                                                            indexShapeMove = i; break;
+                                                        }
+                                                    }
+                                                    Start.X += dx;
+                                                    Start.Y += dy;
+                                                    End.X += dx;
+                                                    End.Y += dy;
+                                                    _shapes[indexShapeMove].UpdateEnd(End);
+
                                                     break;
                                                 }
                                         }
