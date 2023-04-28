@@ -22,6 +22,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+using System.Collections;
 
 namespace Paint
 {
@@ -744,6 +745,109 @@ namespace Paint
             catch (Exception err)
             {
                 MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btnCopy_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isEditMode && _chosedShapes.Count > 0)
+            {
+                if (_chosedShapes.Count == 1)
+                {
+                    // Choose one shape
+                    Point Start = _chosedShapes[0].getStart();
+                    int indexShapeCopy = -1;
+                    for (int i = 0; i < _shapes.Count; i++)
+                    {
+                        if (_shapes[i].getStart().X == Start.X)
+                        {
+                            indexShapeCopy = i;
+                        }
+                    }
+
+                    IShape shapeCopy = _shapes[indexShapeCopy].HardCopy();
+                    Point startCopy= shapeCopy.getStart();
+                    Point endCopy= shapeCopy.getEnd();
+                    startCopy.X += 10;
+                    startCopy.Y += 10;
+                    endCopy.X += 10;
+                    endCopy.Y += 10;
+                    _shapes.Add(shapeCopy);
+                    RedrawCanvas();
+                }
+                else
+                {
+                    // Choose multi shape
+                    List<int> listIndexChooseShapeCopy = new List<int>();
+                    _chosedShapes.ForEach(shape =>
+                    {
+
+                        Point startMulti = shape.getStart();
+                        for (int i = 0; i < _shapes.Count; i++)
+                        {
+                            if (_shapes[i].getStart().X == startMulti.X)
+                            {
+                                IShape shapeCopyMulti = _shapes[i].HardCopy();
+                                Point startCopy = shapeCopyMulti.getStart();
+                                Point endCopy = shapeCopyMulti.getEnd();
+                                startCopy.X += 10;
+                                startCopy.Y += 10;
+                                endCopy.X += 10;
+                                endCopy.Y += 10;
+                                _shapes.Add(shapeCopyMulti);
+
+                            }
+                        }
+                    });
+                    //_chosedShapes.Clear();
+                    RedrawCanvas();
+
+                }
+            }
+        }
+        private void btnDel_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isEditMode && _chosedShapes.Count > 0)
+            {
+                if(_chosedShapes.Count ==1) {
+                    // Choose one shape
+                    Point Start = _chosedShapes[0].getStart();
+                    int indexShapeRemove = -1;
+                    for(int i = 0; i < _shapes.Count; i++)
+                    {
+                        if (_shapes[i].getStart().X == Start.X)
+                        {
+                            indexShapeRemove= i;    
+                        }
+                    }
+
+                    _shapes.RemoveAt(indexShapeRemove);
+                    _chosedShapes.Clear();
+                    RedrawCanvas();
+                }
+                else
+                {
+                    // Choose multi shape
+                    List<int> listIndexChooseShapeRemove = new List<int>();
+                    _chosedShapes.ForEach(shape =>
+                    {
+                        
+                        Point start= shape.getStart();
+                        for(int i=0;i<_shapes.Count;i++)
+                        {
+                            if (_shapes[i].getStart().X == start.X)
+                            {
+                                _shapes.RemoveAt(i);
+                                listIndexChooseShapeRemove.Add(i);
+                                //_chosedShapes.RemoveAt(i);
+                            }
+                        }
+                    });
+                    _chosedShapes.Clear();
+
+                    RedrawCanvas();
+
+                }
             }
         }
     }

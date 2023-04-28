@@ -54,13 +54,10 @@
             Orientation="Horizontal"
             Name="abilitiesStackPanel">
 
-            <Button>
+            <Button Click="btnCopy_Click">
                 <Image Source="/Images/copy.png"/>
             </Button>
-            <Button>
-                <Image Source="/Images/paste.png"/>
-            </Button>
-            <Button>
+            <Button Click="btnDel_Click">
                 <Image Source="/Images/delete.png"/>
             </Button>
             <RadioButton Content="Edit" Checked="handleCheckedEdit"></RadioButton>
