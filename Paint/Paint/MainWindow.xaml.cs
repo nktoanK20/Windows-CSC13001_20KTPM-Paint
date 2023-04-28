@@ -22,6 +22,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+using System.Globalization;
+using System.Threading.Channels;
+using System.Windows.Controls.Primitives;
 
 namespace Paint
 {
@@ -53,6 +56,11 @@ namespace Paint
         private static string _autoSavePath = "autoSave.dat"; // save the file in the project folder
         private bool btnOpenFlag = false;
         Image imageOpenedFromFile = null;
+
+
+        private readonly MatrixTransform _transform = new MatrixTransform();
+
+        public float Zoomfactor { get; set; } = 1.1f;
 
         public MainWindow()
         {
@@ -225,6 +233,7 @@ namespace Paint
 
         private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+
             if (_selectedType.Trim().Length == 0)
             {
                 return;
@@ -255,6 +264,7 @@ namespace Paint
                 return;
             }*/
             //
+
 
             bool isChange = false;
             if (_chosedShapes.Count == 1)
@@ -613,7 +623,6 @@ namespace Paint
 
         private void canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
             if (!this._isEditMode)
             {
 
@@ -714,7 +723,14 @@ namespace Paint
             actualCanvas.Children.Clear();
 
             imageOpenedFromFile = new Image();
-            imageOpenedFromFile.Source = new BitmapImage(new Uri(filename, UriKind.Absolute));
+            Uri uriSource = new Uri(filename, UriKind.Absolute);
+            BitmapImage imgTemp = new BitmapImage();
+            imgTemp.BeginInit();
+            imgTemp.CacheOption = BitmapCacheOption.OnLoad;
+            imgTemp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            imgTemp.UriSource = uriSource;
+            imgTemp.EndInit();
+            imageOpenedFromFile.Source = imgTemp;
             Canvas.SetLeft(imageOpenedFromFile, 0);
             Canvas.SetTop(imageOpenedFromFile, 0);
             actualCanvas.Children.Add(imageOpenedFromFile);
@@ -756,5 +772,65 @@ namespace Paint
                 MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers != ModifierKeys.Control)
+            {
+                return;
+            }
+
+            e.Handled = true;
+            float scaleFactor = Zoomfactor;
+            if (e.Delta < 0)
+            {
+                scaleFactor = 1f / scaleFactor;
+            }
+
+            Point mousePostion = e.GetPosition(this);
+
+            Matrix scaleMatrix = _transform.Matrix;
+            scaleMatrix.ScaleAt(scaleFactor, scaleFactor, mousePostion.X, mousePostion.Y);
+            _transform.Matrix = scaleMatrix;
+
+            actualCanvas.LayoutTransform = _transform;
+            aboveCanvas.LayoutTransform = _transform;
+            aboveCanvasThumb.Height *= 1f / scaleFactor;
+            aboveCanvasThumb.Width *= 1f / scaleFactor;
+        }
+
+        private void aboveCanvasScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            actualCanvasScroll.ScrollToVerticalOffset(e.VerticalOffset);
+            actualCanvasScroll.ScrollToHorizontalOffset(e.HorizontalOffset);
+        }
+
+        private void aboveCanvasThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            //Move the Thumb to the mouse position during the drag operation
+            var yadjust = aboveCanvas.Height + e.VerticalChange;
+            var xadjust = aboveCanvas.Width + e.HorizontalChange;
+            if ((xadjust >= 0) && (yadjust >= 0))
+            {
+                aboveCanvas.Width = xadjust;
+                aboveCanvas.Height = yadjust;
+                actualCanvas.Width = xadjust;
+                actualCanvas.Height = yadjust;
+                Canvas.SetRight(aboveCanvasThumb, 0);
+                Canvas.SetBottom(aboveCanvasThumb, 0);
+            }
+        }
+
+        private void aboveCanvasThumb_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            aboveCanvasThumb.Background = Brushes.Orange;
+        }
+
+        private void aboveCanvasThumb_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            aboveCanvasThumb.Background = Brushes.Blue;
+        }
+
+        
     }
 }
