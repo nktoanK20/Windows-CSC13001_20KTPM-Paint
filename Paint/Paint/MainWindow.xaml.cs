@@ -21,6 +21,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+
+using System.Collections;
+
 using System.Globalization;
 using System.Threading.Channels;
 using System.Windows.Controls.Primitives;
@@ -28,6 +31,7 @@ using System.Linq.Expressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 using System.ComponentModel;
+
 
 namespace Paint
 {
@@ -52,6 +56,7 @@ namespace Paint
         Point _end;
 
         private List<IShape> _shapes = new List<IShape>();
+        private Stack<IShape> _buffer = new Stack<IShape>();
         private List<IShape> _chosedShapes = new List<IShape>();
         private List<controlPoint> _controlPoints = new List<controlPoint>();
         private double editPreviousX = -1;
@@ -109,6 +114,7 @@ namespace Paint
                 abilitiesStackPanel.Children.Add(button);
             }
 
+            _prototype = _abilities["Line"];
             _shapes = LoadAutoSave();
             foreach (var shape in _shapes)
             {
@@ -631,59 +637,51 @@ namespace Paint
                                         switch (ctrlPoint.getEdge(shape.getRotateAngle()))
                                         {
                                             case "topleft":
-                                                {
-                                                    edges[rotateList[index][0]].setCord(handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][2]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "topright":
-                                                {
-                                                    edges[rotateList[index][2]].setCord(handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][0]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "bottomright":
-                                                {
-                                                    edges[rotateList[index][2]].setCord(handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][0]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "bottomleft":
-                                                {
-                                                    edges[rotateList[index][0]].setCord(handledXY.X);
-                                                    edges[rotateList[index][3]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][2]].setCord(-handledXY.X);
-                                                    edges[rotateList[index][1]].setCord(-handledXY.Y);
-                                                    break;
-                                                }
-                                            case "right":
-                                                {
-                                                    edges[rotateList[index][2]].setCord(handledXY.X);
-                                                    edges[rotateList[index][0]].setCord(-handledXY.X);
-                                                    break;
-                                                }
                                             case "left":
-                                                {
-                                                    edges[rotateList[index][0]].setCord(handledXY.X);
-                                                    edges[rotateList[index][2]].setCord(-handledXY.X);
-                                                    break;
-                                                }
+                                            //case "bottomleft":
                                             case "top":
+                                            
                                                 {
-                                                    edges[rotateList[index][1]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][3]].setCord(-handledXY.Y);
+                                                    Point Start = shape.getStart();
+                                                    Point End = shape.getEnd();
+                                                    int indexShapeMove = -1;
+                                                    for (int i = 0; i < _shapes.Count; i++)
+                                                    {
+                                                        if (_shapes[i].getStart().X == Start.X)
+                                                        {
+                                                            indexShapeMove = i; break;
+                                                        }
+                                                    }
+                                                    Start.X += dx;
+                                                    Start.Y += dy;
+                                                    End.X += dx;
+                                                    End.Y += dy;
+                                                    _shapes[indexShapeMove].UpdateStart(Start);
+                                                    
                                                     break;
+
                                                 }
+                                            //case "topright":
+                                            case "right":
+                                            case "bottomright":
                                             case "bottom":
                                                 {
-                                                    edges[rotateList[index][3]].setCord(handledXY.Y);
-                                                    edges[rotateList[index][1]].setCord(-handledXY.Y);
+                                                    Point Start = shape.getStart();
+                                                    Point End = shape.getEnd();
+                                                    int indexShapeMove = -1;
+                                                    for (int i = 0; i < _shapes.Count; i++)
+                                                    {
+                                                        if (_shapes[i].getStart().X == Start.X)
+                                                        {
+                                                            indexShapeMove = i; break;
+                                                        }
+                                                    }
+                                                    Start.X += dx;
+                                                    Start.Y += dy;
+                                                    End.X += dx;
+                                                    End.Y += dy;
+                                                    _shapes[indexShapeMove].UpdateEnd(End);
+
                                                     break;
                                                 }
                                         }
@@ -891,6 +889,107 @@ namespace Paint
             }
         }
 
+        private void btnCopy_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isEditMode && _chosedShapes.Count > 0)
+            {
+                if (_chosedShapes.Count == 1)
+                {
+                    // Choose one shape
+                    Point Start = _chosedShapes[0].getStart();
+                    int indexShapeCopy = -1;
+                    for (int i = 0; i < _shapes.Count; i++)
+                    {
+                        if (_shapes[i].getStart().X == Start.X)
+                        {
+                            indexShapeCopy = i;
+                        }
+                    }
+
+                    IShape shapeCopy = _shapes[indexShapeCopy].HardCopy();
+                    Point startCopy= shapeCopy.getStart();
+                    Point endCopy= shapeCopy.getEnd();
+                    startCopy.X += 10;
+                    startCopy.Y += 10;
+                    endCopy.X += 10;
+                    endCopy.Y += 10;
+                    _shapes.Add(shapeCopy);
+                    RedrawCanvas();
+                }
+                else
+                {
+                    // Choose multi shape
+                    List<int> listIndexChooseShapeCopy = new List<int>();
+                    _chosedShapes.ForEach(shape =>
+                    {
+
+                        Point startMulti = shape.getStart();
+                        for (int i = 0; i < _shapes.Count; i++)
+                        {
+                            if (_shapes[i].getStart().X == startMulti.X)
+                            {
+                                IShape shapeCopyMulti = _shapes[i].HardCopy();
+                                Point startCopy = shapeCopyMulti.getStart();
+                                Point endCopy = shapeCopyMulti.getEnd();
+                                startCopy.X += 10;
+                                startCopy.Y += 10;
+                                endCopy.X += 10;
+                                endCopy.Y += 10;
+                                _shapes.Add(shapeCopyMulti);
+
+                            }
+                        }
+                    });
+                    //_chosedShapes.Clear();
+                    RedrawCanvas();
+
+                }
+            }
+        }
+        private void btnDel_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isEditMode && _chosedShapes.Count > 0)
+            {
+                if(_chosedShapes.Count ==1) {
+                    // Choose one shape
+                    Point Start = _chosedShapes[0].getStart();
+                    int indexShapeRemove = -1;
+                    for(int i = 0; i < _shapes.Count; i++)
+                    {
+                        if (_shapes[i].getStart().X == Start.X)
+                        {
+                            indexShapeRemove= i;    
+                        }
+                    }
+
+                    _shapes.RemoveAt(indexShapeRemove);
+                    _chosedShapes.Clear();
+                    RedrawCanvas();
+                }
+                else
+                {
+                    // Choose multi shape
+                    List<int> listIndexChooseShapeRemove = new List<int>();
+                    _chosedShapes.ForEach(shape =>
+                    {
+                        
+                        Point start= shape.getStart();
+                        for(int i=0;i<_shapes.Count;i++)
+                        {
+                            if (_shapes[i].getStart().X == start.X)
+                            {
+                                _shapes.RemoveAt(i);
+                                listIndexChooseShapeRemove.Add(i);
+                                //_chosedShapes.RemoveAt(i);
+                            }
+                        }
+                    });
+                    _chosedShapes.Clear();
+
+                    RedrawCanvas();
+
+                }
+            }
         private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.Modifiers != ModifierKeys.Control)
@@ -949,6 +1048,7 @@ namespace Paint
             aboveCanvasThumb.Background = Brushes.Blue;
         }
 
+
         //Change stroke type and pen width
         private void PenWidthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -999,6 +1099,33 @@ namespace Paint
                 Button button = (Button)sender;
                 button.Background = new SolidColorBrush(wpfColor);
             }
+
+        private void btnUndo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_shapes.Count == 0)
+                return;
+            if (_shapes.Count == 0 && _buffer.Count == 0)
+                return;
+
+            // Push last shape into buffer and remove it from final list, then re-draw canvas
+            int lastIndex = _shapes.Count - 1;
+            _buffer.Push(_shapes[lastIndex]);
+            _shapes.RemoveAt(lastIndex);
+
+            RedrawCanvas();
+        }
+
+        private void btnRedo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_buffer.Count == 0)
+                return;
+            if (_shapes.Count == 0 && _buffer.Count == 0)
+                return;
+
+            // Pop the last shape from buffer and add it to final list, then re-draw canvas
+            _shapes.Add(_buffer.Pop());
+            RedrawCanvas();
+
         }
     }
 }

@@ -145,6 +145,11 @@ namespace ShapeAbilityContract
             throw new NotImplementedException();
         }
 
+        public IShape HardCopy()
+        {
+            throw new NotImplementedException();
+        }
+
         public static implicit operator Point2D(Point v)
         {
             throw new NotImplementedException();

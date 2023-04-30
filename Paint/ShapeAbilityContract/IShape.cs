@@ -26,8 +26,12 @@ namespace ShapeAbilityContract
         public List<controlPoint> GetControlPoints();
         public UIElement controlOutline();
 
+
         int Thickness { get; set; }
         Color Color { get; set; }
         DoubleCollection StrokeType { get; set; }
+
+        public IShape HardCopy();
+
     }
 }

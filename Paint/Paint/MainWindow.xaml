@@ -49,23 +49,29 @@
                 Content="Clear"
                 Width="50"
                 Click="btnClear_Click" />
+            <Button
+                x:Name="btnUndo"
+                Content="Undo"
+                Width="50"
+                Click="btnUndo_Click" />
+            <Button
+                x:Name="btnRedo"
+                Content="Redo"
+                Width="50"
+                Click="btnRedo_Click" />
+            
         </StackPanel>
         <StackPanel
             Grid.Row="1"
             Orientation="Horizontal"
             Name="abilitiesStackPanel">
 
-            <Button>
-                <Image
-                    Source="/Images/copy.png" />
+            <Button Click="btnCopy_Click">
+                <Image Source="/Images/copy.png"/>
             </Button>
-            <Button>
-                <Image
-                    Source="/Images/paste.png" />
-            </Button>
-            <Button>
-                <Image
-                    Source="/Images/delete.png" />
+            <Button Click="btnDel_Click">
+                <Image Source="/Images/delete.png"/>
+
             </Button>
             <RadioButton
                 Content="Edit"

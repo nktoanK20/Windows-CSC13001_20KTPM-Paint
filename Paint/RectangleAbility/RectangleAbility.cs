@@ -230,11 +230,22 @@ namespace RectangleAbility
             return this.End;
         }
 
+
         public int Thickness { get; set; }
 
         public Color Color { get; set; }
 
         public DoubleCollection StrokeType { get; set; }
+
+
+        public IShape HardCopy()
+        {
+            RectangleAbility temp = new RectangleAbility();
+            temp.Start = this.Start;
+            temp.End = this.End;
+            temp._rotateAngle= this._rotateAngle;
+            return temp;
+        }
 
     }
 }
