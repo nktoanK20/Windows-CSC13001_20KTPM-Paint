@@ -230,6 +230,13 @@ namespace RectangleAbility
             return this.End;
         }
 
-        
+        public IShape HardCopy()
+        {
+            RectangleAbility temp = new RectangleAbility();
+            temp.Start = this.Start;
+            temp.End = this.End;
+            temp._rotateAngle= this._rotateAngle;
+            return temp;
+        }
     }
 }

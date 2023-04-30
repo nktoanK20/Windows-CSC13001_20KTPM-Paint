@@ -230,5 +230,15 @@ namespace EllipseAbility
         {
             return this.End;
         }
+
+        public IShape HardCopy()
+        {
+            EllipseAbility temp = new EllipseAbility();
+            temp.Start = this.Start;
+            
+            temp.End = this.End;
+            temp._rotateAngle= this._rotateAngle;
+            return temp;
+        }
     }
 }

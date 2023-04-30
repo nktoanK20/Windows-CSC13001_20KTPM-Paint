@@ -25,5 +25,6 @@ namespace ShapeAbilityContract
         bool IsHovering(double x, double y);
         public List<controlPoint> GetControlPoints();
         public UIElement controlOutline();
+        public IShape HardCopy();
     }
 }
