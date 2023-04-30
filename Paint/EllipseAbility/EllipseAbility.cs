@@ -4,7 +4,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows;
 using ShapeAbilityContract;
-using Contract;
 using System.Collections.Generic;
 
 namespace EllipseAbility
@@ -31,7 +30,7 @@ namespace EllipseAbility
             End = p;
         }
 
-        public UIElement Draw(Color color, int thickness)
+        public UIElement Draw(Color color, int thickness, DoubleCollection strokeType)
         {
             double width = End.X - Start.X;
             double height = End.Y - Start.Y;
@@ -61,7 +60,8 @@ namespace EllipseAbility
                 Width = width,
                 Height = height,
                 Stroke = new SolidColorBrush(color),
-                StrokeThickness = thickness
+                StrokeThickness = thickness,
+                StrokeDashArray = strokeType
             };
 
             switch (quarter)
@@ -230,5 +230,11 @@ namespace EllipseAbility
         {
             return this.End;
         }
+
+        public int Thickness { get; set; }
+
+        public Color Color { get; set; }
+
+        public DoubleCollection StrokeType { get; set; }
     }
 }

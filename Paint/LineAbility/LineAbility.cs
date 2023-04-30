@@ -4,7 +4,6 @@ using System.Windows.Shapes;
 using System.Windows;
 using ShapeAbilityContract;
 using System.Collections.Generic;
-using Contract;
 using System.Windows.Controls;
 
 namespace LineAbility
@@ -26,7 +25,7 @@ namespace LineAbility
             End = p;
         }
 
-        public UIElement Draw(Color color, int thickness)
+        public UIElement Draw(Color color, int thickness, DoubleCollection strokeType)
         {
             var shape =  new Line()
             {
@@ -35,7 +34,8 @@ namespace LineAbility
                 X2 = End.X,
                 Y2 = End.Y,
                 Stroke = new SolidColorBrush(color),
-                StrokeThickness = thickness
+                StrokeThickness = thickness,
+                StrokeDashArray = strokeType
             };
 
             Point center = new Point((shape.X1 + shape.X2) / 2.0, (shape.Y1 + shape.Y2) / 2.0);
@@ -188,5 +188,11 @@ namespace LineAbility
         {
             return this.End;
         }
+
+        public int Thickness { get; set; }
+
+        public Color Color { get; set; }
+
+        public DoubleCollection StrokeType { get; set; }
     }
 }

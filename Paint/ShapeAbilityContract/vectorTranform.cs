@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 
-namespace Contract
+namespace ShapeAbilityContract
 {
     public static class VectorTranform
     {

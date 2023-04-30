@@ -1,5 +1,4 @@
 using Microsoft.Win32;
-using Contract;
 using ShapeAbilityContract;
 using System;
 using System.Collections.Generic;
@@ -25,6 +24,10 @@ using System.Xml.Linq;
 using System.Globalization;
 using System.Threading.Channels;
 using System.Windows.Controls.Primitives;
+using System.Linq.Expressions;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
+using System.ComponentModel;
 
 namespace Paint
 {
@@ -40,8 +43,9 @@ namespace Paint
         bool _isEditMode = true;
         IShape? _prototype = null;
         string _selectedType = "";
-        Color _selectedColor = Colors.Black;
         int _selectedThickness = 2;
+        private Color _selectedColor = Colors.Black;
+        private DoubleCollection _selectedStrokeType = new DoubleCollection() { 1, 0 };
 
 
         Point _start;
@@ -109,12 +113,10 @@ namespace Paint
             foreach (var shape in _shapes)
             {
                 Debug.WriteLine($"{shape.getStart()} - {shape.getEnd()}");
-                UIElement oldShape = shape.Draw(_selectedColor, _selectedThickness);
+                UIElement oldShape = shape.Draw(shape.Color, shape.Thickness, shape.StrokeType);
                 actualCanvas.Children.Add(oldShape);
             }
         }
-
-
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -128,6 +130,33 @@ namespace Paint
 
         private void AutoSave()
         {
+            //FileStream fileStream = null;
+            //try
+            //{
+            //    fileStream = new FileStream(_autoSavePath, FileMode.Truncate, FileAccess.Write);
+            //}
+            //catch (Exception ex)
+            //{
+            //    fileStream = new FileStream(_autoSavePath, FileMode.Create, FileAccess.Write);
+            //}
+
+
+
+            //BinaryWriter writer = new BinaryWriter(fileStream);
+            //foreach (var shape in _shapes)
+            //{
+            //    writer.Write(shape.Name);
+            //    //writer.Write(shape.Color);
+            //    //writer.Write(shape.StrokeType);
+            //    //writer.Write(shape.Thickness);
+            //    writer.Write(shape.GetStart().X);
+            //    writer.Write(shape.GetStart().Y);
+            //    writer.Write(shape.GetEnd().X);
+            //    writer.Write(shape.GetEnd().Y);
+            //}
+
+            //writer.Close();
+
             FileStream fileStream = null;
             try
             {
@@ -138,12 +167,36 @@ namespace Paint
                 fileStream = new FileStream(_autoSavePath, FileMode.Create, FileAccess.Write);
             }
 
-
-
             BinaryWriter writer = new BinaryWriter(fileStream);
             foreach (var shape in _shapes)
             {
+                // Lưu thông tin về hình dạng
                 writer.Write(shape.Name);
+                writer.Write(shape.Thickness);
+
+                // Lưu giá trị của màu sử dụng ColorConverter
+                Color color = shape.Color;
+                writer.Write(color.A);
+                writer.Write(color.R);
+                writer.Write(color.G);
+                writer.Write(color.B);
+
+                // Lưu giá trị của StrokeDashArray (DoubleCollection)
+                DoubleCollection dashArray = shape.StrokeType;
+                if (dashArray != null)
+                {
+                    writer.Write(dashArray.Count);
+                    foreach (double value in dashArray)
+                    {
+                        writer.Write(value);
+                    }
+                }
+                else
+                {
+                    writer.Write(0); // Không có StrokeDashArray
+                }
+
+                // Lưu các thông tin khác về hình dạng (ví dụ: Start, End, v.v.)
                 writer.Write(shape.GetStart().X);
                 writer.Write(shape.GetStart().Y);
                 writer.Write(shape.GetEnd().X);
@@ -155,6 +208,39 @@ namespace Paint
 
         private List<IShape> LoadAutoSave()
         {
+            //List<IShape> result = new List<IShape>();
+            //try
+            //{
+            //    FileStream fileStream = new FileStream(_autoSavePath, FileMode.Open, FileAccess.Read);
+            //    BinaryReader binaryReader = new BinaryReader(fileStream);
+
+            //    while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length)
+            //    {
+            //        string name = binaryReader.ReadString();
+
+            //        double x = binaryReader.ReadDouble();
+            //        double y = binaryReader.ReadDouble();
+            //        Point p = new Point(x, y);
+            //        IShape shape = (IShape)_abilities[name].Clone();
+            //        shape.UpdateStart(p);
+
+            //        x = binaryReader.ReadDouble();
+            //        y = binaryReader.ReadDouble();
+            //        p = new Point(x, y);
+            //        shape.UpdateEnd(p);
+
+            //        result.Add(shape);
+            //    }
+
+            //    binaryReader.Close();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Debug.WriteLine(ex.Message);
+            //}
+
+            //return result;
+
             List<IShape> result = new List<IShape>();
             try
             {
@@ -165,16 +251,39 @@ namespace Paint
                 {
                     string name = binaryReader.ReadString();
 
-                    double x = binaryReader.ReadDouble();
-                    double y = binaryReader.ReadDouble();
-                    Point p = new Point(x, y);
-                    IShape shape = (IShape)_abilities[name].Clone();
-                    shape.UpdateStart(p);
+                    int thickness = binaryReader.ReadInt32();
 
-                    x = binaryReader.ReadDouble();
-                    y = binaryReader.ReadDouble();
-                    p = new Point(x, y);
-                    shape.UpdateEnd(p);
+                    // Đọc giá trị màu ARGB từ file
+                    byte a = binaryReader.ReadByte();
+                    byte r = binaryReader.ReadByte();
+                    byte g = binaryReader.ReadByte();
+                    byte b = binaryReader.ReadByte();
+                    Color color = Color.FromArgb(a, r, g, b);
+
+                    // Đọc số lượng phần tử trong StrokeDashArray
+                    int dashArrayCount = binaryReader.ReadInt32();
+                    DoubleCollection dashArray = new DoubleCollection();
+                    for (int i = 0; i < dashArrayCount; i++)
+                    {
+                        double value = binaryReader.ReadDouble();
+                        dashArray.Add(value);
+                    }
+
+                    double startX = binaryReader.ReadDouble();
+                    double startY = binaryReader.ReadDouble();
+                    Point start = new Point(startX, startY);
+
+                    double endX = binaryReader.ReadDouble();
+                    double endY = binaryReader.ReadDouble();
+                    Point end = new Point(endX, endY);
+
+                    // Tạo hình dạng mới và cập nhật các thuộc tính
+                    IShape shape = (IShape)_abilities[name].Clone();
+                    shape.Thickness = thickness;
+                    shape.Color = color;
+                    shape.StrokeType = dashArray;
+                    shape.UpdateStart(start);
+                    shape.UpdateEnd(end);
 
                     result.Add(shape);
                 }
@@ -203,10 +312,11 @@ namespace Paint
             {
                 actualCanvas.Children.Add(imageOpenedFromFile);
             }
+
             foreach (var shape in _shapes)
             {
-                var element = shape.Draw(_selectedColor, _selectedThickness);
-                actualCanvas.Children.Add(element);
+                UIElement oldShape = shape.Draw(shape.Color, shape.Thickness, shape.StrokeType);
+                actualCanvas.Children.Add(oldShape);
             }
             //control Point display ontop
             //rework
@@ -605,7 +715,8 @@ namespace Paint
 
                 foreach (var shape in _shapes)
                 {
-                    UIElement oldShape = shape.Draw(_selectedColor, _selectedThickness);
+                    UIElement oldShape = shape.Draw(shape.Color, shape.Thickness, shape.StrokeType);
+                    //UIElement oldShape = shape.Draw(_selectedColor, _selectedThickness, _selectedStrokeType);
                     actualCanvas.Children.Add(oldShape);
                 }
 
@@ -613,7 +724,7 @@ namespace Paint
                 _end = e.GetPosition(actualCanvas);
                 _prototype.UpdateEnd(_end);
 
-                UIElement newShape = _prototype.Draw(_selectedColor, _selectedThickness);
+                UIElement newShape = _prototype.Draw(_selectedColor, _selectedThickness, _selectedStrokeType);
                 actualCanvas.Children.Add(newShape);
             }
 
@@ -625,8 +736,12 @@ namespace Paint
         {
             if (!this._isEditMode)
             {
-
-                _shapes.Add((IShape)_prototype.Clone());
+                //_shapes.Add((IShape)_prototype.Clone());
+                IShape newShape = _prototype.Clone() as IShape;
+                newShape.Thickness = _selectedThickness;
+                newShape.StrokeType = _selectedStrokeType;
+                newShape.Color = _selectedColor;
+                _shapes.Add(newShape);
                 _isDrawing = false;
             }
 
@@ -658,6 +773,9 @@ namespace Paint
                         {
                             _chosedShapes.Clear();
                             this._chosedShapes.Add(_shapes[i]);
+                            _shapes[i].Thickness = _selectedThickness;
+                            _shapes[i].Color = _selectedColor;
+                            _shapes[i].StrokeType = _selectedStrokeType;
                         }
 
                         RedrawCanvas();
@@ -831,6 +949,56 @@ namespace Paint
             aboveCanvasThumb.Background = Brushes.Blue;
         }
 
-        
+        //Change stroke type and pen width
+        private void PenWidthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBoxItem selectedItem = penWidthComboBox.SelectedItem as ComboBoxItem;
+            if (selectedItem != null)
+            {
+                string penWidthString = selectedItem.Content.ToString();
+                int.TryParse(penWidthString, out _selectedThickness);
+            }
+        }
+
+        private void StrokeTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBoxItem selectedItem = strokeTypeComboBox.SelectedItem as ComboBoxItem;
+            if (selectedItem != null)
+            {
+                string tag = selectedItem.Tag as string;
+                if (!string.IsNullOrEmpty(tag))
+                {
+                    string[] parts = tag.Split(',');
+                    if (parts.Length > 0)
+                    {
+                        _selectedStrokeType = new DoubleCollection();
+                        foreach (string part in parts)
+                        {
+                            double value;
+                            if (double.TryParse(part, out value))
+                            {
+                                _selectedStrokeType.Add(value);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        private void PickColor_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.ColorDialog colorDialog = new System.Windows.Forms.ColorDialog();
+            if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                System.Drawing.Color selectedColor = colorDialog.Color;
+                Color wpfColor = Color.FromArgb(selectedColor.A, selectedColor.R, selectedColor.G, selectedColor.B);
+                _selectedColor = wpfColor;
+
+                // Thay đổi màu nền của Button
+                Button button = (Button)sender;
+                button.Background = new SolidColorBrush(wpfColor);
+            }
+        }
     }
 }

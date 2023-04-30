@@ -1,4 +1,4 @@
-﻿namespace Contract
+﻿namespace ShapeAbilityContract
 {
     public class util
     {
