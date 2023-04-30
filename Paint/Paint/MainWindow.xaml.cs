@@ -377,17 +377,11 @@ namespace Paint
 
             _prototype = (IShape)_abilities[_selectedType].Clone();
             _prototype.UpdateStart(_start);
+            _prototype.UpdateEnd(_start);
         }
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            /*if (!_isDrawing || _prototype == null)
-            {
-                return;
-            }*/
-            //
-
-
             bool isChange = false;
             if (_chosedShapes.Count == 1)
             {
@@ -1106,6 +1100,7 @@ namespace Paint
                 Button button = (Button)sender;
                 button.Background = new SolidColorBrush(wpfColor);
             }
+        }
 
         private void btnUndo_Click(object sender, RoutedEventArgs e)
         {
