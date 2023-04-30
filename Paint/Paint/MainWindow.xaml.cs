@@ -53,6 +53,7 @@ namespace Paint
 
         private List<IShape> _shapes = new List<IShape>();
         private Stack<IShape> _buffer = new Stack<IShape>();
+        private List<IShape> _buffer_copy = new List<IShape>();
         private List<IShape> _chosedShapes = new List<IShape>();
         private List<controlPoint> _controlPoints = new List<controlPoint>();
         private double editPreviousX = -1;
@@ -99,6 +100,11 @@ namespace Paint
 
             foreach (var ability in _abilities)
             {
+                if (ability.Key == "Point")
+                {
+                    continue;
+                }
+
                 var button = new Button()
                 {
                     Width = 80,
@@ -530,7 +536,7 @@ namespace Paint
                                             case "left":
                                             //case "bottomleft":
                                             case "top":
-                                            
+
                                                 {
                                                     Point Start = shape.getStart();
                                                     Point End = shape.getEnd();
@@ -547,7 +553,7 @@ namespace Paint
                                                     End.X += dx;
                                                     End.Y += dy;
                                                     _shapes[indexShapeMove].UpdateStart(Start);
-                                                    
+
                                                     break;
 
                                                 }
@@ -789,8 +795,8 @@ namespace Paint
                     }
 
                     IShape shapeCopy = _shapes[indexShapeCopy].HardCopy();
-                    Point startCopy= shapeCopy.getStart();
-                    Point endCopy= shapeCopy.getEnd();
+                    Point startCopy = shapeCopy.getStart();
+                    Point endCopy = shapeCopy.getEnd();
                     startCopy.X += 10;
                     startCopy.Y += 10;
                     endCopy.X += 10;
@@ -818,7 +824,6 @@ namespace Paint
                                 endCopy.X += 10;
                                 endCopy.Y += 10;
                                 _shapes.Add(shapeCopyMulti);
-
                             }
                         }
                     });
@@ -832,15 +837,15 @@ namespace Paint
         {
             if (_isEditMode && _chosedShapes.Count > 0)
             {
-                if(_chosedShapes.Count ==1) {
+                if (_chosedShapes.Count == 1) {
                     // Choose one shape
                     Point Start = _chosedShapes[0].getStart();
                     int indexShapeRemove = -1;
-                    for(int i = 0; i < _shapes.Count; i++)
+                    for (int i = 0; i < _shapes.Count; i++)
                     {
                         if (_shapes[i].getStart().X == Start.X)
                         {
-                            indexShapeRemove= i;    
+                            indexShapeRemove = i;
                         }
                     }
 
@@ -854,9 +859,9 @@ namespace Paint
                     List<int> listIndexChooseShapeRemove = new List<int>();
                     _chosedShapes.ForEach(shape =>
                     {
-                        
-                        Point start= shape.getStart();
-                        for(int i=0;i<_shapes.Count;i++)
+
+                        Point start = shape.getStart();
+                        for (int i = 0; i < _shapes.Count; i++)
                         {
                             if (_shapes[i].getStart().X == start.X)
                             {
@@ -872,6 +877,8 @@ namespace Paint
 
                 }
             }
+        }
+
         private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.Modifiers != ModifierKeys.Control)
