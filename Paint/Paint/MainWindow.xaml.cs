@@ -106,6 +106,7 @@ namespace Paint
                 abilitiesStackPanel.Children.Add(button);
             }
 
+            _prototype = _abilities["Line"];
             _shapes = LoadAutoSave();
             foreach (var shape in _shapes)
             {
