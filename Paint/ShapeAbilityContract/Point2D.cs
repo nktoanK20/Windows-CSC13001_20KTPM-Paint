@@ -1,5 +1,4 @@
-﻿using ShapeAbilityContract;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace Contract
+namespace ShapeAbilityContract
 {
     public class Point2D : IShape
     {
@@ -18,8 +17,9 @@ namespace Contract
         public string Icon { get; }
         public Point2D() { }
 
-        public Point2D(double x, double y) {
-            this.X= x; this.Y = y;
+        public Point2D(double x, double y)
+        {
+            X = x; Y = y;
         }
 
         public SolidColorBrush Brush { get; set; }
@@ -70,8 +70,8 @@ namespace Contract
         public Point2D deepCopy()
         {
             Point2D temp = new Point2D();
-            temp.Y = this.Y;
-            temp.X = this.X;
+            temp.Y = Y;
+            temp.X = X;
             return temp;
         }
 
@@ -105,7 +105,7 @@ namespace Contract
             throw new NotImplementedException();
         }
 
-        public UIElement Draw(Color color, int thickness)
+        public UIElement Draw(Color color, int thickness, DoubleCollection strokeType)
         {
             throw new NotImplementedException();
         }
@@ -154,5 +154,9 @@ namespace Contract
         {
             throw new NotImplementedException();
         }
+
+        public Color Color { get; set; }
+
+        public DoubleCollection StrokeType { get; set; }
     }
 }
