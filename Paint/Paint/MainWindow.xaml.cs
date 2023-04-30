@@ -950,15 +950,15 @@ namespace Paint
         {
             if (_isEditMode && _chosedShapes.Count > 0)
             {
-                if(_chosedShapes.Count ==1) {
+                if (_chosedShapes.Count == 1) {
                     // Choose one shape
                     Point Start = _chosedShapes[0].getStart();
                     int indexShapeRemove = -1;
-                    for(int i = 0; i < _shapes.Count; i++)
+                    for (int i = 0; i < _shapes.Count; i++)
                     {
                         if (_shapes[i].getStart().X == Start.X)
                         {
-                            indexShapeRemove= i;    
+                            indexShapeRemove = i;
                         }
                     }
 
@@ -972,9 +972,9 @@ namespace Paint
                     List<int> listIndexChooseShapeRemove = new List<int>();
                     _chosedShapes.ForEach(shape =>
                     {
-                        
-                        Point start= shape.getStart();
-                        for(int i=0;i<_shapes.Count;i++)
+
+                        Point start = shape.getStart();
+                        for (int i = 0; i < _shapes.Count; i++)
                         {
                             if (_shapes[i].getStart().X == start.X)
                             {
@@ -990,6 +990,7 @@ namespace Paint
 
                 }
             }
+        }
         private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.Modifiers != ModifierKeys.Control)
@@ -1099,7 +1100,7 @@ namespace Paint
                 Button button = (Button)sender;
                 button.Background = new SolidColorBrush(wpfColor);
             }
-
+        }
         private void btnUndo_Click(object sender, RoutedEventArgs e)
         {
             if (_shapes.Count == 0)

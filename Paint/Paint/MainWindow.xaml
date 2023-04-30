@@ -182,13 +182,10 @@
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" Name="abilitiesStackPanel">
-            <Button>
+            <Button Click="btnCopy_Click">
                 <Image Source="/Images/copy.png" />
             </Button>
-            <Button>
-                <Image Source="/Images/paste.png" />
-            </Button>
-            <Button>
+            <Button Click="btnDel_Click">
                 <Image Source="/Images/delete.png" />
             </Button>
             <RadioButton Content="Edit" Checked="handleCheckedEdit" VerticalAlignment="Center" Margin="10 0 10 0"/>
