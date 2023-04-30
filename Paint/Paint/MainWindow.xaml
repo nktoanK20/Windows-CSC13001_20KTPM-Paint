@@ -68,11 +68,15 @@
             Orientation="Horizontal"
             VerticalAlignment="Center"
             Name="abilitiesStackPanel">
-            <Button>
+            <Button
+                Click="btnCopy_Click"
+                >
                 <Image
                     Source="/Images/copy.png" />
             </Button>
-            <Button>
+            <Button
+                Click="btnDel_Click"
+                >
                 <Image
                     Source="/Images/delete.png" />
             </Button>

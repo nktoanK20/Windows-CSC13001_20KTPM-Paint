@@ -142,33 +142,6 @@ namespace Paint
 
         private void AutoSave()
         {
-            //FileStream fileStream = null;
-            //try
-            //{
-            //    fileStream = new FileStream(_autoSavePath, FileMode.Truncate, FileAccess.Write);
-            //}
-            //catch (Exception ex)
-            //{
-            //    fileStream = new FileStream(_autoSavePath, FileMode.Create, FileAccess.Write);
-            //}
-
-
-
-            //BinaryWriter writer = new BinaryWriter(fileStream);
-            //foreach (var shape in _shapes)
-            //{
-            //    writer.Write(shape.Name);
-            //    //writer.Write(shape.Color);
-            //    //writer.Write(shape.StrokeType);
-            //    //writer.Write(shape.Thickness);
-            //    writer.Write(shape.GetStart().X);
-            //    writer.Write(shape.GetStart().Y);
-            //    writer.Write(shape.GetEnd().X);
-            //    writer.Write(shape.GetEnd().Y);
-            //}
-
-            //writer.Close();
-
             FileStream fileStream = null;
             try
             {
@@ -220,39 +193,6 @@ namespace Paint
 
         private List<IShape> LoadAutoSave()
         {
-            //List<IShape> result = new List<IShape>();
-            //try
-            //{
-            //    FileStream fileStream = new FileStream(_autoSavePath, FileMode.Open, FileAccess.Read);
-            //    BinaryReader binaryReader = new BinaryReader(fileStream);
-
-            //    while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length)
-            //    {
-            //        string name = binaryReader.ReadString();
-
-            //        double x = binaryReader.ReadDouble();
-            //        double y = binaryReader.ReadDouble();
-            //        Point p = new Point(x, y);
-            //        IShape shape = (IShape)_abilities[name].Clone();
-            //        shape.UpdateStart(p);
-
-            //        x = binaryReader.ReadDouble();
-            //        y = binaryReader.ReadDouble();
-            //        p = new Point(x, y);
-            //        shape.UpdateEnd(p);
-
-            //        result.Add(shape);
-            //    }
-
-            //    binaryReader.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.WriteLine(ex.Message);
-            //}
-
-            //return result;
-
             List<IShape> result = new List<IShape>();
             try
             {
@@ -734,7 +674,6 @@ namespace Paint
         {
             if (!this._isEditMode)
             {
-                //_shapes.Add((IShape)_prototype.Clone());
                 IShape newShape = _prototype.Clone() as IShape;
                 newShape.Thickness = _selectedThickness;
                 newShape.StrokeType = _selectedStrokeType;
