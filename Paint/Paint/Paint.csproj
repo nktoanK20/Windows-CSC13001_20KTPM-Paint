@@ -5,6 +5,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
     <Resource Include="Images\copy.png" />
     <Resource Include="Images\delete.png" />
     <Resource Include="Images\paste.png" />
+	<Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
 </Project>

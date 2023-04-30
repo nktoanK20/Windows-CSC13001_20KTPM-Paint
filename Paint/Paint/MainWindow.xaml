@@ -1,4 +1,4 @@
-﻿<Window
+﻿<!--<Window
     x:Name="MainWin"
     x:Class="Paint.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -130,5 +130,105 @@
                     DragCompleted="aboveCanvasThumb_DragCompleted" />
             </Canvas>
         </ScrollViewer>
+
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Select Pen Width:"/>
+            <ComboBox x:Name="penWidthComboBox" SelectionChanged="PenWidthComboBox_SelectionChanged">
+                <ComboBoxItem Content="1"/>
+                <ComboBoxItem Content="2"/>
+                <ComboBoxItem Content="3"/>
+            </ComboBox>
+            <TextBlock Text="Select Stroke Type:"/>
+            <ComboBox x:Name="strokeTypeComboBox" SelectionChanged="StrokeTypeComboBox_SelectionChanged">
+                <ComboBoxItem Content="Solid Line" Tag="1,0"/>
+                <ComboBoxItem Content="Dashed Line" Tag="4,2"/>
+                <ComboBoxItem Content="Dot Line" Tag="1,2"/>
+            </ComboBox>
+
+            <Button Content="Pick Color" Click="PickColor_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>-->
+
+<Window x:Name="MainWin" x:Class="Paint.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Paint"
+        mc:Ignorable="d"
+        Title="Paint"
+        Height="800"
+        Width="1300"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+    
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Name="menuBarStackPanel" Grid.Row="0">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="0,0,10,0" />
+                </Style>
+            </StackPanel.Resources>
+            <Button x:Name="btnOpen" Content="Open" Width="50" Click="btnOpen_Click" />
+            <Button x:Name="btnSave" Content="Save" Width="50" Click="btnSave_Click" />
+            <Button x:Name="btnClear" Content="Clear" Width="50" Click="btnClear_Click" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" Name="abilitiesStackPanel">
+            <Button>
+                <Image Source="/Images/copy.png" />
+            </Button>
+            <Button>
+                <Image Source="/Images/paste.png" />
+            </Button>
+            <Button>
+                <Image Source="/Images/delete.png" />
+            </Button>
+            <RadioButton Content="Edit" Checked="handleCheckedEdit" VerticalAlignment="Center" Margin="10 0 10 0"/>
+
+            <RadioButton Content="Draw" Checked="handleCheckedDraw" VerticalAlignment="Center"/>
+
+            <StackPanel Orientation="Vertical" Margin="20 0 20 0">
+                <TextBlock Text="Select Pen Width:"/>
+                <ComboBox x:Name="penWidthComboBox" SelectionChanged="PenWidthComboBox_SelectionChanged">
+                    <ComboBoxItem Content="1"/>
+                    <ComboBoxItem Content="2"/>
+                    <ComboBoxItem Content="3"/>
+                    <ComboBoxItem Content="4"/>
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" Margin="20 0 20 0">
+                <TextBlock Text="Select Stroke Type:"/>
+                <ComboBox x:Name="strokeTypeComboBox" SelectionChanged="StrokeTypeComboBox_SelectionChanged">
+                    <ComboBoxItem Content="Solid Line" Tag="1,0"/>
+                    <ComboBoxItem Content="Dashed Line" Tag="4,2"/>
+                    <ComboBoxItem Content="Dot Line" Tag="1,2"/>
+                    <ComboBoxItem Content="Dot Dash Dot" Tag="1,4,1"/>
+                    <ComboBoxItem Content="Dash Dot Dash" Tag="4,1,4"/>
+                </ComboBox>
+            </StackPanel>
+            
+            <Button Content="Pick Color" Click="PickColor_Click" Height="35" Padding="10 5 5 10" Margin="0 0 20 0"/>
+        </StackPanel>
+
+        <ScrollViewer x:Name="actualCanvasScroll" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Background="Gray" Grid.Row="2">
+            <Canvas ClipToBounds="True" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="50, 50, 100, 100" Width="1000" Height="600" Background="White" Name="actualCanvas">
+            </Canvas>
+        </ScrollViewer>
+
+        <ScrollViewer x:Name="aboveCanvasScroll" ScrollChanged="aboveCanvasScroll_ScrollChanged" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Background="Transparent" PreviewMouseWheel="canvas_MouseWheel" Grid.Row="2">
+            <Canvas VerticalAlignment="Top" HorizontalAlignment="Left" Margin="50, 50, 100, 100" Width="1000" Height="600" Background="Transparent" Name="aboveCanvas" MouseDown="canvas_MouseDown" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp">
+                <Thumb Name="aboveCanvasThumb" Canvas.Right="0" Canvas.Bottom="0" Background="Blue" Width="20" Height="20" DragDelta="aboveCanvasThumb_DragDelta" DragStarted="aboveCanvasThumb_DragStarted" DragCompleted="aboveCanvasThumb_DragCompleted" />
+            </Canvas>
+        </ScrollViewer>
     </Grid>
 </Window>
+

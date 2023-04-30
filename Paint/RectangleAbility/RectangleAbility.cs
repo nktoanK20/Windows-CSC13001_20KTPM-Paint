@@ -5,7 +5,6 @@ using System.Windows;
 using ShapeAbilityContract;
 using System.Windows.Shapes;
 using System.Collections.Generic;
-using Contract;
 
 namespace RectangleAbility
 {
@@ -30,7 +29,7 @@ namespace RectangleAbility
             End = p;
         }
 
-        public UIElement Draw(Color color, int thickness)
+        public UIElement Draw(Color color, int thickness, DoubleCollection strokeType)
         {
             double width = End.X - Start.X;
             double height = End.Y - Start.Y;
@@ -60,7 +59,8 @@ namespace RectangleAbility
                 Width = width,
                 Height = height,
                 Stroke = new SolidColorBrush(color),
-                StrokeThickness = thickness
+                StrokeThickness = thickness,
+                StrokeDashArray = strokeType
             };
 
             switch (quarter)
@@ -230,6 +230,14 @@ namespace RectangleAbility
             return this.End;
         }
 
+
+        public int Thickness { get; set; }
+
+        public Color Color { get; set; }
+
+        public DoubleCollection StrokeType { get; set; }
+
+
         public IShape HardCopy()
         {
             RectangleAbility temp = new RectangleAbility();
@@ -238,5 +246,6 @@ namespace RectangleAbility
             temp._rotateAngle= this._rotateAngle;
             return temp;
         }
+
     }
 }
