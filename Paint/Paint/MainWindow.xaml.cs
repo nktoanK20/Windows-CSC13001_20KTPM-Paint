@@ -22,7 +22,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+
 using System.Collections;
+
+using System.Globalization;
+using System.Threading.Channels;
+using System.Windows.Controls.Primitives;
+
 
 namespace Paint
 {
@@ -46,13 +52,20 @@ namespace Paint
         Point _end;
 
         private List<IShape> _shapes = new List<IShape>();
+        private Stack<IShape> _buffer = new Stack<IShape>();
         private List<IShape> _chosedShapes = new List<IShape>();
         private List<controlPoint> _controlPoints = new List<controlPoint>();
         private double editPreviousX = -1;
         private double editPreviousY = -1;
-        private IShape _preview = null;        private static string _autoSavePath = "autoSave.dat"; // save the file in the project folder
+        private IShape _preview = null;
+        private static string _autoSavePath = "autoSave.dat"; // save the file in the project folder
         private bool btnOpenFlag = false;
         Image imageOpenedFromFile = null;
+
+
+        private readonly MatrixTransform _transform = new MatrixTransform();
+
+        public float Zoomfactor { get; set; } = 1.1f;
 
         public MainWindow()
         {
@@ -100,6 +113,7 @@ namespace Paint
             _shapes = LoadAutoSave();
             foreach (var shape in _shapes)
             {
+                Debug.WriteLine($"{shape.getStart()} - {shape.getEnd()}");
                 UIElement oldShape = shape.Draw(_selectedColor, _selectedThickness);
                 actualCanvas.Children.Add(oldShape);
             }
@@ -124,13 +138,13 @@ namespace Paint
             {
                 fileStream = new FileStream(_autoSavePath, FileMode.Truncate, FileAccess.Write);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 fileStream = new FileStream(_autoSavePath, FileMode.Create, FileAccess.Write);
             }
 
-            
-            
+
+
             BinaryWriter writer = new BinaryWriter(fileStream);
             foreach (var shape in _shapes)
             {
@@ -224,6 +238,7 @@ namespace Paint
 
         private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+
             if (_selectedType.Trim().Length == 0)
             {
                 return;
@@ -254,7 +269,8 @@ namespace Paint
                 return;
             }*/
             //
-            
+
+
             bool isChange = false;
             if (_chosedShapes.Count == 1)
             {
@@ -338,7 +354,7 @@ namespace Paint
                         End.Y = End.Y + dy;
                         K.UpdateStart(Start);
                         K.UpdateEnd(End);
-                        
+
                     });
 
                 }
@@ -418,7 +434,7 @@ namespace Paint
 
                         if (ctrlPoint.isHovering(shape.getRotateAngle(), currentPos.X, currentPos.Y))
                         {
-                            
+
                             switch (ctrlPoint.type)
                             {
                                 case "rotate":
@@ -445,12 +461,12 @@ namespace Paint
                                         if (angle > 0)
                                         {
                                             shape.setRotateAngle(shape.getRotateAngle() - alpha * RotateFactor);
-                                        
+
                                         }
                                         else
                                         {
                                             shape.setRotateAngle(shape.getRotateAngle() + alpha * RotateFactor);
-                                            
+
                                         }
                                         break;
                                     }
@@ -461,21 +477,21 @@ namespace Paint
                                         Point Start = shape.getStart();
                                         Point End = shape.getEnd();
                                         int indexShapeMove = -1;
-                                        for(int i = 0; i < _shapes.Count; i++)
+                                        for (int i = 0; i < _shapes.Count; i++)
                                         {
                                             if (_shapes[i].getStart().X == Start.X)
                                             {
-                                                indexShapeMove= i; break;
+                                                indexShapeMove = i; break;
                                             }
                                         }
-                                        
+
                                         Start.X += dx;
                                         Start.Y += dy;
                                         End.X += dx;
                                         End.Y += dy;
 
-                                        
-                                        
+
+
                                         //shape.UpdateStart(Start);
                                         //shape.UpdateEnd(End);
                                         _shapes[indexShapeMove].UpdateStart(Start);
@@ -590,21 +606,20 @@ namespace Paint
                     actualCanvas.Children.Add(oldShape);
                 }
 
-               
+
                 _end = e.GetPosition(actualCanvas);
                 _prototype.UpdateEnd(_end);
 
                 UIElement newShape = _prototype.Draw(_selectedColor, _selectedThickness);
                 actualCanvas.Children.Add(newShape);
             }
-            
+
 
 
         }
 
         private void canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
             if (!this._isEditMode)
             {
 
@@ -619,12 +634,12 @@ namespace Paint
                 Point currentPos = e.GetPosition(actualCanvas);
                 for (int i = this._shapes.Count - 1; i >= 0; i--)
                 {
-    ;
+                    ;
                     IShape temp = _shapes[i];
 
 
 
-                    if (temp.IsHovering(Math.Abs(currentPos.X),Math.Abs(currentPos.Y)))
+                    if (temp.IsHovering(Math.Abs(currentPos.X), Math.Abs(currentPos.Y)))
                     {
 
                         if (Keyboard.IsKeyDown(Key.LeftCtrl))
@@ -659,7 +674,7 @@ namespace Paint
 
 
             // Draw new thing -> isSaved = false
-            
+
 
             // Re-draw the canvas
 
@@ -705,7 +720,14 @@ namespace Paint
             actualCanvas.Children.Clear();
 
             imageOpenedFromFile = new Image();
-            imageOpenedFromFile.Source = new BitmapImage(new Uri(filename, UriKind.Absolute));
+            Uri uriSource = new Uri(filename, UriKind.Absolute);
+            BitmapImage imgTemp = new BitmapImage();
+            imgTemp.BeginInit();
+            imgTemp.CacheOption = BitmapCacheOption.OnLoad;
+            imgTemp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            imgTemp.UriSource = uriSource;
+            imgTemp.EndInit();
+            imageOpenedFromFile.Source = imgTemp;
             Canvas.SetLeft(imageOpenedFromFile, 0);
             Canvas.SetTop(imageOpenedFromFile, 0);
             actualCanvas.Children.Add(imageOpenedFromFile);
@@ -849,6 +871,89 @@ namespace Paint
 
                 }
             }
+        private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers != ModifierKeys.Control)
+            {
+                return;
+            }
+
+            e.Handled = true;
+            float scaleFactor = Zoomfactor;
+            if (e.Delta < 0)
+            {
+                scaleFactor = 1f / scaleFactor;
+            }
+
+            Point mousePostion = e.GetPosition(this);
+
+            Matrix scaleMatrix = _transform.Matrix;
+            scaleMatrix.ScaleAt(scaleFactor, scaleFactor, mousePostion.X, mousePostion.Y);
+            _transform.Matrix = scaleMatrix;
+
+            actualCanvas.LayoutTransform = _transform;
+            aboveCanvas.LayoutTransform = _transform;
+            aboveCanvasThumb.Height *= 1f / scaleFactor;
+            aboveCanvasThumb.Width *= 1f / scaleFactor;
+        }
+
+        private void aboveCanvasScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            actualCanvasScroll.ScrollToVerticalOffset(e.VerticalOffset);
+            actualCanvasScroll.ScrollToHorizontalOffset(e.HorizontalOffset);
+        }
+
+        private void aboveCanvasThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            //Move the Thumb to the mouse position during the drag operation
+            var yadjust = aboveCanvas.Height + e.VerticalChange;
+            var xadjust = aboveCanvas.Width + e.HorizontalChange;
+            if ((xadjust >= 0) && (yadjust >= 0))
+            {
+                aboveCanvas.Width = xadjust;
+                aboveCanvas.Height = yadjust;
+                actualCanvas.Width = xadjust;
+                actualCanvas.Height = yadjust;
+                Canvas.SetRight(aboveCanvasThumb, 0);
+                Canvas.SetBottom(aboveCanvasThumb, 0);
+            }
+        }
+
+        private void aboveCanvasThumb_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            aboveCanvasThumb.Background = Brushes.Orange;
+        }
+
+        private void aboveCanvasThumb_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            aboveCanvasThumb.Background = Brushes.Blue;
+        }
+
+        private void btnUndo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_shapes.Count == 0)
+                return;
+            if (_shapes.Count == 0 && _buffer.Count == 0)
+                return;
+
+            // Push last shape into buffer and remove it from final list, then re-draw canvas
+            int lastIndex = _shapes.Count - 1;
+            _buffer.Push(_shapes[lastIndex]);
+            _shapes.RemoveAt(lastIndex);
+
+            RedrawCanvas();
+        }
+
+        private void btnRedo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_buffer.Count == 0)
+                return;
+            if (_shapes.Count == 0 && _buffer.Count == 0)
+                return;
+
+            // Pop the last shape from buffer and add it to final list, then re-draw canvas
+            _shapes.Add(_buffer.Pop());
+            RedrawCanvas();
         }
     }
 }

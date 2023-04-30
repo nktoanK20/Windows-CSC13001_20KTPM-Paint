@@ -228,7 +228,7 @@ namespace EllipseAbility
 
         public Point GetEnd()
         {
-            return this.Start;
+            return this.End;
         }
 
         public IShape HardCopy()
