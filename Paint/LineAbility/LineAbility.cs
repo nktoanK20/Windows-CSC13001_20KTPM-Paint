@@ -188,5 +188,15 @@ namespace LineAbility
         {
             return this.End;
         }
+
+        public IShape HardCopy()
+        {
+            LineAbility temp = new LineAbility();
+            temp.Start = this.Start;
+            temp.End = this.End;
+            temp._rotateAngle= this._rotateAngle;
+
+            return temp;
+        }
     }
 }
