@@ -74,10 +74,6 @@
             </Button>
             <Button>
                 <Image
-                    Source="/Images/paste.png" />
-            </Button>
-            <Button>
-                <Image
                     Source="/Images/delete.png" />
             </Button>
             <RadioButton
