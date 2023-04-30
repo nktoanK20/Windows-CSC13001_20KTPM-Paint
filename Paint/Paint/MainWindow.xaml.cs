@@ -48,6 +48,7 @@ namespace Paint
         Point _end;
 
         private List<IShape> _shapes = new List<IShape>();
+        private Stack<IShape> _buffer = new Stack<IShape>();
         private List<IShape> _chosedShapes = new List<IShape>();
         private List<controlPoint> _controlPoints = new List<controlPoint>();
         private double editPreviousX = -1;
@@ -831,6 +832,31 @@ namespace Paint
             aboveCanvasThumb.Background = Brushes.Blue;
         }
 
-        
+        private void btnUndo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_shapes.Count == 0)
+                return;
+            if (_shapes.Count == 0 && _buffer.Count == 0)
+                return;
+
+            // Push last shape into buffer and remove it from final list, then re-draw canvas
+            int lastIndex = _shapes.Count - 1;
+            _buffer.Push(_shapes[lastIndex]);
+            _shapes.RemoveAt(lastIndex);
+
+            RedrawCanvas();
+        }
+
+        private void btnRedo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_buffer.Count == 0)
+                return;
+            if (_shapes.Count == 0 && _buffer.Count == 0)
+                return;
+
+            // Pop the last shape from buffer and add it to final list, then re-draw canvas
+            _shapes.Add(_buffer.Pop());
+            RedrawCanvas();
+        }
     }
 }

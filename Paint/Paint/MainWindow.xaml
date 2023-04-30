@@ -49,6 +49,17 @@
                 Content="Clear"
                 Width="50"
                 Click="btnClear_Click" />
+            <Button
+                x:Name="btnUndo"
+                Content="Undo"
+                Width="50"
+                Click="btnUndo_Click" />
+            <Button
+                x:Name="btnRedo"
+                Content="Redo"
+                Width="50"
+                Click="btnRedo_Click" />
+            
         </StackPanel>
         <StackPanel
             Grid.Row="1"
